@@ -6,13 +6,15 @@ import { SimpleTaskList } from "./components/SimpleTaskList";
 import { TaskEditor } from "./components/TaskEditor";
 import { FlashNotePanel } from "./components/FlashNotes";
 import { useTaskStore } from "./store/taskStore";
+import { useFlashNoteStore } from "./store/flashNoteStore";
 import { Task } from "./types";
 import { useNotificationScheduler } from "./hooks/useNotificationScheduler";
 
 type ViewMode = "list" | "stats";
 
 function App() {
-  const { loadTasks, getStatusStats } = useTaskStore();
+  const { loadTasks, getStatusStats, deleteTask } = useTaskStore();
+  const { addNote } = useFlashNoteStore();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
@@ -79,6 +81,31 @@ function App() {
     // 打开任务编辑器（不传 task，表示新建）
     setEditingTask(undefined);
     setIsEditorOpen(true);
+  };
+
+  // 将任务转化为灵光一闪
+  const handleConvertTaskToNote = async (task: Task) => {
+    // 构建笔记内容（标题+描述）
+    let content = `<h2>${task.title}</h2>`;
+    if (task.description) {
+      content += `<p>${task.description}</p>`;
+    }
+
+    // 创建灵光一闪笔记
+    addNote({
+      content,
+      tags: task.tags,
+    });
+
+    // 删除原任务
+    await deleteTask(task.id);
+
+    // 显示成功提示（可选）
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("💡 转换成功", {
+        body: `任务"${task.title}"已转化为灵光一闪的想法`,
+      });
+    }
   };
 
   return (
@@ -187,7 +214,10 @@ function App() {
       <div className="flex-1 overflow-hidden p-3">
         {viewMode === "list" ? (
           /* 列表视图：简单的倒序任务列表 */
-          <SimpleTaskList onEditTask={handleEditTask} />
+          <SimpleTaskList
+            onEditTask={handleEditTask}
+            onConvertToFlashNote={handleConvertTaskToNote}
+          />
         ) : (
           /* 统计视图：左侧维度 + 右侧任务列表 */
           <div className="flex gap-4 h-full">
