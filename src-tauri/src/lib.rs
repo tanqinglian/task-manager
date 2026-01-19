@@ -63,6 +63,9 @@ fn show_notification(app: tauri::AppHandle, title: String, body: String) -> Resu
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // 初始化日志
+    env_logger::init();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
