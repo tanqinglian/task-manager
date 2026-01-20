@@ -6,9 +6,10 @@ import { FlashNoteEditor } from './FlashNoteEditor';
 interface FlashNotePanelProps {
   onClose?: () => void;
   onConvertToTask?: (content: string, tags?: string[]) => void;
+  onNoteSaved?: (message: string) => void;
 }
 
-export function FlashNotePanel({ onClose, onConvertToTask }: FlashNotePanelProps) {
+export function FlashNotePanel({ onClose, onConvertToTask, onNoteSaved }: FlashNotePanelProps) {
   const { selectedNoteId, setSelectedNoteId, getSelectedNote } = useFlashNoteStore();
   const selectedNote = getSelectedNote();
 
@@ -67,6 +68,7 @@ export function FlashNotePanel({ onClose, onConvertToTask }: FlashNotePanelProps
             <FlashNoteEditor
               note={selectedNote || undefined}
               onConvertToTask={onConvertToTask}
+              onNoteSaved={onNoteSaved}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-gray-400">

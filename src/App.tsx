@@ -5,6 +5,7 @@ import { TaskList } from "./components/TaskList";
 import { SimpleTaskList } from "./components/SimpleTaskList";
 import { TaskEditor } from "./components/TaskEditor";
 import { FlashNotePanel } from "./components/FlashNotes";
+import { Toast } from "./components/Toast";
 import { useTaskStore } from "./store/taskStore";
 import { useFlashNoteStore } from "./store/flashNoteStore";
 import { Task } from "./types";
@@ -20,6 +21,25 @@ function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [isFlashNoteOpen, setIsFlashNoteOpen] = useState(false);
   const [pendingNoteContent, setPendingNoteContent] = useState<{ title: string; description: string; tags?: string[] } | undefined>(undefined);
+
+  // Toast 状态
+  const [toast, setToast] = useState<{
+    message: string;
+    isVisible: boolean;
+  }>({
+    message: '',
+    isVisible: false,
+  });
+
+  // 显示 toast
+  const showToast = (message: string) => {
+    setToast({ message, isVisible: true });
+  };
+
+  // 隐藏 toast
+  const hideToast = () => {
+    setToast((prev) => ({ ...prev, isVisible: false }));
+  };
 
   // 加载任务数据并请求通知权限
   useEffect(() => {
@@ -243,8 +263,17 @@ function App() {
         <FlashNotePanel
           onClose={handleCloseFlashNote}
           onConvertToTask={handleConvertNoteToTask}
+          onNoteSaved={showToast}
         />
       )}
+
+      {/* Toast 提示 */}
+      <Toast
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onHide={hideToast}
+        duration={5000}
+      />
     </div>
   );
 }
