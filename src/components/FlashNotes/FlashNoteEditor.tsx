@@ -7,9 +7,10 @@ interface FlashNoteEditorProps {
   note?: FlashNote;
   onClose?: () => void;
   onConvertToTask?: (content: string, tags?: string[]) => void;
+  onNoteSaved?: (message: string) => void;
 }
 
-export function FlashNoteEditor({ note, onClose, onConvertToTask }: FlashNoteEditorProps) {
+export function FlashNoteEditor({ note, onClose, onConvertToTask, onNoteSaved }: FlashNoteEditorProps) {
   const { addNote, updateNote } = useFlashNoteStore();
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -40,6 +41,11 @@ export function FlashNoteEditor({ note, onClose, onConvertToTask }: FlashNoteEdi
         content: content.trim(),
         tags: tags.length > 0 ? tags : undefined,
       });
+
+      // 新增想法时显示 toast
+      if (onNoteSaved) {
+        onNoteSaved('蒸蚌，你又有一个新想法诞生啦！！！');
+      }
     }
 
     if (onClose) {
